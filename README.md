@@ -1,7 +1,5 @@
 # Step by step setup for Mask_RCNN adapted to wally
 
-![](https://1.bp.blogspot.com/-U51vk2wxcGk/VW1u_vKroOI/AAAAAAAAFUs/Wjwsuz69qf4/s1600/wallyj.jpg)
-
 # Run ballon example
 ## Steps to do in command line
 
