@@ -1,0 +1,99 @@
+# Step by step setup for Mask_RCNN adpated to wally
+
+# Run ballon example
+## Steps to do in command line
+
+### Clone project
+git clone https://github.com/matterport/Mask_RCNN.git
+
+### Create new conda environment with
+conda create -n mask_rcnn 
+conda activate mask_rcnn
+
+### Install jupyter (and jupyter lab) and eventually other packages
+conda install jupyter
+conda install -c conda-forge jupyterlab
+
+### Install dependencies
+Navigate inside the project folder and run:
+while read requirement; do conda install --yes $requirement; done < requirements.txt
+
+--> see: https://gist.github.com/luiscape/19d2d73a8c7b59411a2fb73a697f5ed4 
+
+### Run setup from the repository root directory
+python3 setup.py install
+
+### Download pre-trained COCO weights (mask_rcnn_coco.h5) from the releases page
+https://github.com/matterport/Mask_RCNN/releases/download/v2.1/mask_rcnn_balloon.h5
+
+Store the weights somewhere inside the project folder
+
+### For balloon example: Download balloon data from releases page
+https://github.com/matterport/Mask_RCNN/releases/download/v2.1/balloon_dataset.zip
+
+Unzip and store it to (create folder 'datasets' first):
+/Mask_RCNN/datasets/balloon
+
+### Open the jupyter notebook for the balloon example
+cd /home/luca/Documents/switchDrive/Private/Bildung/03_hslu/02_semester_03/W.MSCIDS_DLV03.F2001/group_project/Mask_RCNN/samples/balloon
+jupyter lab
+
+
+
+## Check installation in jupyter lab
+### Open inspect_balloon_data.ipynb
+Run the notebook and check if everything works (no errors).
+
+
+## Train model with balloon dataset
+### Adaptions
+
+#### Changes in ballon.py model_metrics
+error, see: https://github.com/matterport/Mask_RCNN/issues/849
+solution: There are 80+1 classes in coco dataset, while you only get 2 classes. So when loading weights you should exclude some layers such as 'mrcnn_bbox_fc','mrcnn_class_logits’(fill the layer's name in the load_weights method), then start fine-tuning.
+
+#### Changes in model.py
+error, see: https://github.com/matterport/Mask_RCNN/issues/1754
+first change model.py file's line 2199 , which is "self.keras_model.metrics_tensors.append(loss)" to "self.keras_model.add_metric(loss, name)" and then with this command "python .\setup.py install" generate new egg file. You cannot directly change the content of the egg file. 
+
+
+
+### Run ballon.py from command line with the following arguments:
+python3 balloon.py train --dataset=../../datasets/balloon --weights=mask_rcnn_coco.h5
+
+see: https://github.com/matterport/Mask_RCNN/issues/796
+
+
+# Train with wally
+### Make a copy 
+Of folder 'samples/ballon' and rename it to 'wally'
+
+### Adapt balloon.py --> wally.py
+Replace references to ballon by references to wally...
+
+### Data
+Store pictures in '/Mask_RCNN/datasets/wally/train' for train pictures and '/Mask_RCNN/datasets/wally/val' for validation
+Also store the annotations file as json in the respective folder, named 'via_region_data.json'
+
+--> I did the annotations myself using https://www.robots.ox.ac.uk/~vgg/software/via/via.html (same as they used for balloon sample)
+
+
+### Train: Start training from command line
+(make sure to activate the right environment first: conda activate mask_rcnn)
+
+cd /home/luca/Documents/switchDrive/Private/Bildung/03_hslu/02_semester_03/W.MSCIDS_DLV03.F2001/group_project/Mask_RCNN/samples/wally
+python3 wally.py train --dataset=../../datasets/wally --weights=mask_rcnn_coco.h5
+
+### Check the model with inspect_wally_model.ipynb
+--> Download some Wally pics from Web
+--> Test predicitions of the model with them in the last part of the notebook 'Test with unseen pictures'
+
+
+
+
+
+
+
+
+
+
